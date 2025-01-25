@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  sb9-postgres:
+    image: postgres:15
+    container_name: 'sb9-postgres'
+    restart: always
+    environment:
+      - TZ=Asia/Bangkok
+      - POSTGRES_USER= postgres
+      - POSTGRES_PASSWORD= 1234
+      - POSTGRES_DB= back_api_db
+    ports:
+      - '5444:5432'
+    volumes:
+      - sb-postgres-vol:/var/lib/postgresql/data
+volumes:
+  sb-postgres-vol:
