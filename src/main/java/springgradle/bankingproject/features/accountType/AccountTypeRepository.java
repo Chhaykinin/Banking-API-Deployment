@@ -6,6 +6,7 @@ import springgradle.bankingproject.model.AccountType;
 import java.util.Optional;
 
 public interface AccountTypeRepository extends JpaRepository<AccountType, Integer> {
+    Boolean existsByAlias(String alias);
     // SELECT * FROM account_types WHERE alias =?
     Optional<AccountType> findByAlias(String alias);
 }
