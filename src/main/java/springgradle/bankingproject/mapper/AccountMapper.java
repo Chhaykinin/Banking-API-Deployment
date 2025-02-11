@@ -10,7 +10,7 @@ public interface AccountMapper {
     // map acc to accResponse
     // source = account
     // target = accountResponse
-    @Mapping(source ="accountType.alias",target = "accountTypeAlias")
+//    @Mapping(source ="accountType.alias",target = "accountTypeAlias")
     AccountResponse toAccountResponse(Account account);
     Account fromAccountRequest(AccountRequest accountRequest);
 }

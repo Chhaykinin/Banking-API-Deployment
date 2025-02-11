@@ -2,12 +2,16 @@ package springgradle.bankingproject.init;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import springgradle.bankingproject.features.accountType.AccountTypeRepository;
+import springgradle.bankingproject.features.user.RoleRepository;
 import springgradle.bankingproject.features.user.UserRepository;
 import springgradle.bankingproject.model.AccountType;
+import springgradle.bankingproject.model.Role;
 import springgradle.bankingproject.model.User;
 
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -15,6 +19,9 @@ import java.util.UUID;
 public class DataInit {
     private final UserRepository userRepository;
     private final AccountTypeRepository accountTypeRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+
     @PostConstruct
     void init(){
         if(accountTypeRepository.count() == 0) {
@@ -33,21 +40,61 @@ public class DataInit {
             accountTypeRepository.save(accountType);
             accountTypeRepository.save(saving);
         }
-        if(userRepository.count() == 0){
-            User user = new User();
-            user.setUuid(UUID.randomUUID().toString());
-            user.setName("John Doe");
-            user.setGender("Male");
-            user.setPassword("abcd");
-            user.setPin("1234");
-            user.setPhoneNumber("0122343443");
-            user.setNationalCardId("123456789");
-            user.setStudentCardId("HRD-100");
-            user.setProfileImage("user/string.png");
-            user.setIsDeleted(false);
-            user.setIsBlocked(false);
-            userRepository.save(user);
-        }
+        if(userRepository.count() == 0) {
+            Role user = new Role();
+            user.setName("USER");
+            Role manager = new Role();
+            manager.setName("MANAGER");
+            Role admin = new Role();
+            admin.setName("ADMIN");
+            Role customer = new Role();
+            customer.setName("CUSTOMER");
+            roleRepository.saveAll(List.of(user, manager, admin, customer));
+            User user1 = new User();
+            user1.setUuid(UUID.randomUUID().toString());
+            user1.setName("John");
+            user1.setGender("Male");
+            user1.setPassword(passwordEncoder.encode("Kinin@1234"));
+            user1.setPin("1234");
+            user1.setPhoneNumber("0122343443");
+            user1.setEmail("booom@gmail.com");
+            user1.setNationalCardId("123456789");
+            user1.setStudentCardId("HRD-100");
+            user1.setProfileImage("user3/string.png");
+            user1.setIsDeleted(false);
+            user1.setIsBlocked(false);
+            user1.setRoles(List.of(user, admin));
 
+            User user2 = new User();
+            user2.setUuid(UUID.randomUUID().toString());
+            user2.setName("kinin");
+            user2.setGender("Male");
+            user2.setPassword(passwordEncoder.encode("Kinin@1234"));
+            user2.setPin("1234");
+            user2.setPhoneNumber("0122343440");
+            user2.setEmail("kininchhaykd@gmail.com");
+            user2.setNationalCardId("123456779");
+            user2.setStudentCardId("HRD-1000");
+            user2.setProfileImage("user3/string.png");
+            user2.setIsDeleted(false);
+            user2.setIsBlocked(false);
+            user2.setRoles(List.of(user, manager));
+
+            User user3 = new User();
+            user3.setUuid(UUID.randomUUID().toString());
+            user3.setName("KNin");
+            user3.setGender("Male");
+            user3.setPassword(passwordEncoder.encode("Kinin@1234"));
+            user3.setPin("7777");
+            user3.setPhoneNumber("0222343440");
+            user3.setEmail("book@gmail.com");
+            user3.setNationalCardId("123456777");
+            user3.setStudentCardId("HRD-2000");
+            user3.setProfileImage("user3/string.png");
+            user3.setIsDeleted(false);
+            user3.setIsBlocked(false);
+            user3.setRoles(List.of(user, customer));
+            userRepository.saveAll(List.of(user1, user2, user3));
+        }
     }
 }

@@ -3,11 +3,17 @@ package springgradle.bankingproject.features.account;
 
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import springgradle.bankingproject.features.account.dto.AccountRenameRequest;
 import springgradle.bankingproject.features.account.dto.AccountRequest;
 import springgradle.bankingproject.features.account.dto.AccountResponse;
+import springgradle.bankingproject.features.account.dto.AccountTransferLimitRequest;
 import springgradle.bankingproject.features.accountType.AccountTypeRepository;
 import springgradle.bankingproject.features.user.UserRepository;
 import springgradle.bankingproject.mapper.AccountMapper;
@@ -21,7 +27,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor// create private acc
 public class AccountServiceImpl implements AccountService {
-
     private final AccountRepository accountRepository;
     private final AccountTypeRepository accountTypeRepository;
     private final UserRepository userRepository;
@@ -82,14 +87,49 @@ public class AccountServiceImpl implements AccountService {
         //write by lombok
         return accountMapper.toAccountResponse(account);// lombok and mapstruct write auto
     }
-
     @Override
-    public List<AccountResponse> findList() {
-        return List.of();
+    public Page<AccountResponse> findList(int pageNumber, int pageSize) {
+        Sort sortById = Sort.by(Sort.Direction.DESC, "id");
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sortById);
+        Page<Account> accounts = accountRepository.findAll(pageRequest);
+        return accounts.map(accountMapper::toAccountResponse);// account to account response
     }
-
     @Override
     public AccountResponse findByActNo(String actNo) {
-        return null;
+        //validate
+        Account account = accountRepository.findByActNo(actNo).
+                orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Account no have been not found"));
+        return accountMapper.toAccountResponse(account);
     }
+    @Override
+    public AccountResponse renameAccount(String actNo, AccountRenameRequest accountRenameRequest) {
+        //validate
+        Account account = accountRepository.findByActNo(actNo).
+                orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Account no have been not found"));
+        account.setAlias(accountRenameRequest.alias());
+        account=accountRepository.save(account);
+        return accountMapper.toAccountResponse(account);
+    }
+
+    @Override
+    public void hideAccount(String actNo) {
+        Account account=accountRepository.findByActNo(actNo).orElseThrow(
+                ()->new ResponseStatusException(HttpStatus.NOT_FOUND,  "Account no have been not found")
+        );
+        account.setIsHidden(true);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void transferLimit(String actNo, AccountTransferLimitRequest accountTransferLimitRequest) {
+        //validate
+        Account account = accountRepository.findByActNo(actNo).
+                orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Account no have been not found"));
+        account.setTransferLimit(accountTransferLimitRequest.amount());
+        accountRepository.save(account);
+    }
+
 }
